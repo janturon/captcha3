@@ -33,14 +33,13 @@ function captchaTest($captchaToken, $secret=CAPTCHA_SECRET) {
 // place <input type="hidden" name="captcha"> into target form (the captcha token is generated here)
 // call captchaBadge only once per site, it can serve multiple forms
 function captchaBadge($apikey=CAPTCHA_APIKEY) {
-  return <<<JS
+return '
   <div id="recaptcha-badge"></div>
   <script>
     var clientId; // set by placeCaptcha
 
     // called by placeCaptcha after grecaptcha is provided by Google
     function getReCaptcha() {
-      if(!clientId) return;
       grecaptcha.ready(function() {
         grecaptcha.execute(clientId).then(function(token) {
           var captcha = document.getElementsByName("captcha");
@@ -50,19 +49,17 @@ function captchaBadge($apikey=CAPTCHA_APIKEY) {
       });
     }
 
-    // called by google's RECAPTCHA API, see below
+    // called by RECAPTCHA API, see below
     function placeCaptcha() {
-      clientId = grecaptcha.render('recaptcha-badge', {
-        'sitekey': '$apikey',
-        'badge': 'inline',
-        'size': 'invisible'
+      clientId = grecaptcha.render("recaptcha-badge", {
+        "sitekey": "'.$apikey.'",
+        "badge": "inline",
+        "size": "invisible"
       });
       getReCaptcha();
-      // refresh ReCaptcha every 2 minutes
-      // Google believes that response after 3+ minutes is a bot action
-      setInterval(getReCaptcha, 120000);
+      setInterval(getReCaptcha, 120000); // update token every 2 minutes
     }
   </script>
   <script src="https://www.google.com/recaptcha/api.js?render=explicit&onload=placeCaptcha"></script>
-JS; // must NOT be indented
+';
 }
